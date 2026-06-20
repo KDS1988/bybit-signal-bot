@@ -10,11 +10,7 @@ import json
 import logging
 import requests
 import pandas as pd
-
-try:
-    import pandas_ta as ta
-except ImportError:
-    raise SystemExit("Установи pandas_ta: pip install pandas-ta")
+import pandas_ta as ta
 
 # ═══════════════════════════════════════════
 #  НАСТРОЙКИ — берутся из GitHub Secrets
