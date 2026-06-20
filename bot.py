@@ -48,19 +48,24 @@ def save_state(state):
 # ═══════════════════════════════════════════
 
 def fetch_candles(symbol):
-    url = "https://api.bybit.com/v5/market/kline"
-    params = {"category": "linear", "symbol": symbol, "interval": INTERVAL, "limit": CANDLES_LIMIT}
+    url = "https://api.binance.com/api/v3/klines"
+    params = {
+        "symbol":   symbol,
+        "interval": "1h",
+        "limit":    CANDLES_LIMIT,
+    }
     resp = requests.get(url, params=params, timeout=15)
     resp.raise_for_status()
-    data = resp.json()
-    if data.get("retCode") != 0:
-        raise ValueError(f"Bybit error: {data.get('retMsg')}")
-    raw = data["result"]["list"]
-    df = pd.DataFrame(raw, columns=["timestamp","open","high","low","close","volume","turnover"])
-    df = df.iloc[::-1].reset_index(drop=True)
+    raw = resp.json()
+    df = pd.DataFrame(raw, columns=[
+        "timestamp","open","high","low","close","volume",
+        "close_time","quote_vol","trades","taker_buy_base",
+        "taker_buy_quote","ignore"
+    ])
     for col in ["open","high","low","close","volume"]:
         df[col] = df[col].astype(float)
     return df
+
 
 # ═══════════════════════════════════════════
 #  ИНДИКАТОРЫ
