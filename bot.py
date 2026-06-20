@@ -48,20 +48,26 @@ def save_state(state):
 # ═══════════════════════════════════════════
 
 def fetch_candles(symbol):
-    url = "https://api.binance.com/api/v3/klines"
+    # OKX использует формат BTC-USDT вместо BTCUSDT
+    okx_symbol = symbol[:-4] + "-" + symbol[-4:]  # BTCUSDT → BTC-USDT
+    url = "https://www.okx.com/api/v5/market/candles"
     params = {
-        "symbol":   symbol,
-        "interval": "1h",
-        "limit":    CANDLES_LIMIT,
+        "instId": okx_symbol,
+        "bar":    "1H",
+        "limit":  str(CANDLES_LIMIT),
     }
     resp = requests.get(url, params=params, timeout=15)
     resp.raise_for_status()
-    raw = resp.json()
+    data = resp.json()
+    if data.get("code") != "0":
+        raise ValueError(f"OKX error: {data.get('msg')}")
+    raw = data["data"]
     df = pd.DataFrame(raw, columns=[
-        "timestamp","open","high","low","close","volume",
-        "close_time","quote_vol","trades","taker_buy_base",
-        "taker_buy_quote","ignore"
+        "timestamp","open","high","low","close",
+        "volume","volCcy","volCcyQuote","confirm"
     ])
+    # OKX возвращает от новых к старым — переворачиваем
+    df = df.iloc[::-1].reset_index(drop=True)
     for col in ["open","high","low","close","volume"]:
         df[col] = df[col].astype(float)
     return df
