@@ -1,6 +1,6 @@
 {
   "BTCUSDT": "SHORT",
   "ETHUSDT": "LONG",
-  "SOLUSDT": "SHORT",
-  "XRPUSDT": "LONG"
+  "SOLUSDT": "LONG",
+  "XRPUSDT": "SHORT"
 }
